@@ -37,32 +37,26 @@ maxZoom:19
 
 async function geocode(place){
 
-if(!place || place.trim()===""){
-alert("Please enter a location");
-return null;
-}
-
-let url = `/geocode?q=${encodeURIComponent(place)}`;
+let url=`/geocode?q=${encodeURIComponent(place)}`;
 
 try{
 
-let res = await fetch(url);
-let data = await res.json();
+let res=await fetch(url);
+let data=await res.json();
 
-if(!data || data.length===0 || !data[0].lat){
-alert("Location not found: "+place);
+if(!Array.isArray(data) || data.length === 0){
+console.warn("Location not found:", place);
 return null;
 }
 
 return {
-lat: parseFloat(data[0].lat),
-lon: parseFloat(data[0].lon)
+lat:parseFloat(data[0].lat),
+lon:parseFloat(data[0].lon)
 };
 
 }catch(err){
 
 console.error("Geocode error:",err);
-alert("Location search failed");
 return null;
 
 }
@@ -222,9 +216,9 @@ async function searchLocation(query,listId){
 
 if(query.length < 3) return;
 
-let viewbox = "77.9,17.9,78.9,16.9";
-
 let url = `/geocode?q=${encodeURIComponent(query)}`;
+
+try{
 
 let res = await fetch(url);
 let data = await res.json();
@@ -232,7 +226,16 @@ let data = await res.json();
 let list = document.getElementById(listId);
 list.innerHTML = "";
 
+/* IMPORTANT FIX */
+
+if(!Array.isArray(data)){
+console.warn("Geocode returned error:", data);
+return;
+}
+
 data.forEach(place => {
+
+if(!place.lat || !place.lon) return;
 
 let item = document.createElement("div");
 
@@ -273,6 +276,12 @@ list.appendChild(item);
 
 });
 
+}catch(err){
+
+console.error("Search failed:", err);
+
+}
+
 }
 
 
@@ -295,7 +304,9 @@ startMarker = L.marker([lat,lon]).addTo(map);
 
 map.setView([lat,lon],15);
 
-let url=`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+/* CALL YOUR BACKEND */
+
+let url=`/reverse?lat=${lat}&lon=${lon}`;
 
 let res = await fetch(url);
 let data = await res.json();
@@ -387,5 +398,19 @@ zone.area +
 list.appendChild(li);
 
 });
+
+}
+
+
+
+let searchTimeout;
+
+function debounceSearch(query,listId){
+
+clearTimeout(searchTimeout);
+
+searchTimeout = setTimeout(()=>{
+searchLocation(query,listId);
+},500);
 
 }

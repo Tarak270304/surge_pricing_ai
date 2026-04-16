@@ -71,11 +71,18 @@ def geocode(q: str):
         "q": q,
         "format": "json",
         "limit": 5,
-        "addressdetails": 1
+        "addressdetails": 1,
+
+        # India restriction
+        "countrycodes": "in",
+
+        # Hyderabad + surrounding districts
+        "viewbox": "77.2,18.2,79.2,16.7",
+        "bounded": 1
     }
 
     headers = {
-        "User-Agent": "surge-prediction-app"
+        "User-Agent": "surge-ai-app"
     }
 
     try:
@@ -84,6 +91,27 @@ def geocode(q: str):
     except Exception as e:
         return {"error": str(e)}
 
+
+@app.get("/reverse")
+def reverse_geocode(lat: float, lon: float):
+
+    url = "https://nominatim.openstreetmap.org/reverse"
+
+    params = {
+        "lat": lat,
+        "lon": lon,
+        "format": "json"
+    }
+
+    headers = {
+        "User-Agent": "surge-ai-app"
+    }
+
+    try:
+        r = requests.get(url, params=params, headers=headers, timeout=5)
+        return r.json()
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.get("/driver/zones")
 def get_driver_zones():

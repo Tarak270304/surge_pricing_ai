@@ -26,7 +26,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def home():
-  return FileResponse("static/index.html")
+return FileResponse("static/index.html")
 
 # ================= ESTIMATE =================
 
@@ -39,19 +39,15 @@ try:
 
     features = build_features(start_lat, start_lon)
 
-    traffic = features["traffic"]
-    weather = features["weather"]
-    event = features["event"]
-
     surge = predict_surge(features)
     fare = calculate_fare(distance, duration, surge)
 
     return {
         "distance_km": round(distance, 2),
         "duration_min": round(duration, 2),
-        "traffic": traffic,
-        "weather": weather,
-        "event": event,
+        "traffic": features["traffic"],
+        "weather": features["weather"],
+        "event": features["event"],
         "demand_score": features["demand"],
         "drivers_available": features["supply"],
         "demand_supply_ratio": features["ratio"],
@@ -61,8 +57,6 @@ try:
 
 except Exception as e:
     print("Estimate error:", e)
-
-    # SAFE fallback (prevents frontend crash)
     return {
         "distance_km": 0,
         "duration_min": 0,
@@ -103,20 +97,15 @@ try:
     r = requests.get(url, params=params, headers=headers, timeout=5)
 
     if r.status_code != 200:
-        print("Geocode failed:", r.status_code)
         return []
 
     text = r.text.strip()
-
     if not text:
-        print("Empty response from Nominatim")
         return []
 
     try:
         data = r.json()
-    except Exception as e:
-        print("JSON parse error:", e)
-        print("Raw response:", text)
+    except:
         return []
 
     if not isinstance(data, list):
@@ -164,11 +153,8 @@ except Exception as e:
 
 @app.get("/driver/zones")
 def get_driver_zones():
-
-```
 return [
-    {"area": "Hitech City", "ratio": 2.1, "surge": 2.0},
-    {"area": "Gachibowli", "ratio": 1.8, "surge": 1.7},
-    {"area": "Secunderabad", "ratio": 1.6, "surge": 1.5}
+{"area": "Hitech City", "ratio": 2.1, "surge": 2.0},
+{"area": "Gachibowli", "ratio": 1.8, "surge": 1.7},
+{"area": "Secunderabad", "ratio": 1.6, "surge": 1.5}
 ]
-```

@@ -244,3 +244,38 @@ list.appendChild(li);
 });
 
 }
+
+
+
+function detectLocation() {
+    if (!navigator.geolocation) {
+        alert("Geolocation not supported");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            console.log("Detected:", lat, lon);
+
+            // store coords
+            startCoords = { lat: lat, lon: lon };
+
+            // optional: mark on map
+            if (startMarker) map.removeLayer(startMarker);
+
+            startMarker = L.marker([lat, lon]).addTo(map);
+            map.setView([lat, lon], 14);
+
+            // optional: show text
+            document.getElementById("pickup").value = "Current Location";
+
+        },
+        (error) => {
+            console.error(error);
+            alert("Location access denied");
+        }
+    );
+}

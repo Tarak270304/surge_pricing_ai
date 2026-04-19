@@ -26,7 +26,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 def home():
-return FileResponse("static/index.html")
+  return FileResponse("static/index.html")
 
 # ================= ESTIMATE =================
 
@@ -153,8 +153,8 @@ except Exception as e:
 
 @app.get("/driver/zones")
 def get_driver_zones():
-return [
-{"area": "Hitech City", "ratio": 2.1, "surge": 2.0},
-{"area": "Gachibowli", "ratio": 1.8, "surge": 1.7},
-{"area": "Secunderabad", "ratio": 1.6, "surge": 1.5}
-]
+ return [
+  {"area": "Hitech City", "ratio": 2.1, "surge": 2.0},
+  {"area": "Gachibowli", "ratio": 1.8, "surge": 1.7},
+  {"area": "Secunderabad", "ratio": 1.6, "surge": 1.5}
+  ]

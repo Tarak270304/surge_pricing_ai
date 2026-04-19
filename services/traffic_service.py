@@ -7,7 +7,8 @@ def get_traffic(lat, lon):
 
     try:
         if not TOMTOM_API_KEY:
-            raise ValueError("TOMTOM_API_KEY not set")
+            print("TOMTOM_API_KEY not set")
+            return 1   # fallback instead of crash
 
         url = f"https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json?point={lat},{lon}&key={TOMTOM_API_KEY}"
 

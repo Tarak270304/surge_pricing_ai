@@ -1,80 +1,66 @@
 body{
-font-family:Arial;
-margin:0;
-padding:0;
-text-align:center;
+    font-family: Arial;
+    margin:0;
+    text-align:center;
 }
 
 h2{
-background:#222;
-color:white;
-padding:15px;
+    background:#222;
+    color:white;
+    padding:15px;
 }
 
 .controls{
-margin:10px;
+    margin:20px;
 }
 
 input{
-padding:10px;
-margin:5px;
-width:220px;
+    padding:10px;
+    width:220px;
 }
 
-button{
-padding:10px 20px;
-background:#2ecc71;
-border:none;
-color:white;
-font-size:16px;
-cursor:pointer;
+/* FIXED DROPDOWN */
+.inputBox{
+    position: relative;
+    width:220px;
+    margin:10px auto;
 }
 
-#map{
-height:600px;
-width:100%;
-margin-top:20px;
-}
-
-#result{
-font-size:18px;
-margin-top:10px;
-}
 .suggestions{
-background:white;
-border:1px solid #ccc;
-width:220px;
-margin:auto;
-text-align:left;
+    position:absolute;
+    top:45px;
+    left:0;
+    width:100%;
+    background:white;
+    border:1px solid #ccc;
+    max-height:200px;
+    overflow-y:auto;
+    z-index:999;
 }
 
 .suggestions div{
-padding:5px;
-cursor:pointer;
+    padding:10px;
+    cursor:pointer;
 }
 
 .suggestions div:hover{
-background:#eee;
+    background:#eee;
+}
+
+button{
+    padding:10px 20px;
+    background:#2ecc71;
+    color:white;
+    border:none;
+    margin:10px;
+    cursor:pointer;
 }
 
 .infoPanel{
-background:white;
-padding:15px;
-width:300px;
-margin:20px;
-border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.2);
-}
-
-.bookBtn{
-background:#27ae60;
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:5px;
-cursor:pointer;
-}
-
-.bookBtn:hover{
-background:#219150;
+    background:white;
+    padding:15px;
+    width:300px;
+    margin:20px auto;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.2);
 }

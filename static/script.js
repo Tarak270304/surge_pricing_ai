@@ -12,7 +12,6 @@ loadDriverZones();
 
 }
 
-
 /* ================= MAP INIT ================= */
 
 let startMarker=null;
@@ -31,7 +30,6 @@ map.invalidateSize();
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
 maxZoom:19
 }).addTo(map);
-
 
 /* ================= GEOCODING ================= */
 
@@ -63,7 +61,6 @@ return null;
 
 }
 
-
 /* ================= RIDE CALCULATION ================= */
 
 async function calculateRide(){
@@ -74,16 +71,12 @@ let drop=document.getElementById("drop").value;
 let start;
 let end;
 
-/* Use detected location if available */
-
 if(startCoords){
 start = startCoords;
 }
 else{
 start = await geocode(pickup);
 }
-
-/* Drop must still be geocoded */
 
 end = await geocode(drop);
 
@@ -93,7 +86,6 @@ return;
 
 startCoords = start;
 endCoords = end;
-
 
 /* Remove old markers */
 
@@ -105,14 +97,12 @@ if(endMarker){
 map.removeLayer(endMarker);
 }
 
-
 /* Add new markers */
 
 startMarker = L.marker([start.lat,start.lon]).addTo(map);
 endMarker = L.marker([end.lat,end.lon]).addTo(map);
 
 map.setView([start.lat,start.lon],13);
-
 
 /* ================= ROUTE API ================= */
 
@@ -121,96 +111,66 @@ let routeURL=`http://router.project-osrm.org/route/v1/driving/${start.lon},${sta
 let routeRes=await fetch(routeURL);
 let routeData=await routeRes.json();
 
-/* ROUTE SAFETY CHECK */
-
 if(!routeData.routes || routeData.routes.length===0){
 alert("Route not found");
 return;
 }
 
 let coords=routeData.routes[0].geometry.coordinates;
-
 let latlngs=coords.map(c=>[c[1],c[0]]);
-
-
-/* Remove old route */
 
 if(routeLine){
 map.removeLayer(routeLine);
 }
 
-
-/* Draw new route */
-
 routeLine=L.polyline(latlngs,{color:'blue'}).addTo(map);
-
 
 /* ================= BACKEND API ================= */
 
-let api=`http://127.0.0.1:8000/estimate?start_lat=${start.lat}&start_lon=${start.lon}&end_lat=${end.lat}&end_lon=${end.lon}`;
+let api=`/estimate?start_lat=${start.lat}&start_lon=${start.lon}&end_lat=${end.lat}&end_lon=${end.lon}`;
 
 let rideRes=await fetch(api);
 let ride=await rideRes.json();
-
 
 /* ================= DISPLAY DATA ================= */
 
 document.getElementById("locationName").innerText = pickup;
 
-
-/* Traffic */
-
 document.getElementById("traffic").innerText =
 ride.traffic === 1 ? "Low" :
 ride.traffic === 2 ? "Medium" : "High";
-
-
-/* Weather */
 
 document.getElementById("weather").innerText =
 ride.weather === 0 ? "Clear" :
 ride.weather === 1 ? "Rain" : "Storm";
 
-
-/* Event */
-
 document.getElementById("event").innerText =
 ride.event === 1 ? "Yes" : "No";
 
-
 document.getElementById("demand").innerText = ride.demand_score;
-
 document.getElementById("drivers").innerText = ride.drivers_available;
-
 document.getElementById("ratio").innerText = ride.demand_supply_ratio;
-
-
-/* Fare */
 
 document.getElementById("fare").innerText =
 `₹${ride.estimated_fare} (${ride.surge_multiplier}x surge)`;
 
-
-/* Recommendation */
-
 let recommendation="";
 
 if(ride.demand_supply_ratio > 1.5){
-recommendation="⚠ High demand detected. Consider waiting to reduce fare.";
+recommendation="⚠ High demand detected. Consider waiting.";
 }
 else if(ride.demand_supply_ratio > 1){
-recommendation="⏳ Demand slightly high. Booking now may cost more.";
+recommendation="⏳ Demand slightly high.";
 }
 else{
-recommendation="✅ Good time to book. Supply is sufficient.";
+recommendation="✅ Good time to book.";
 }
 
 document.getElementById("advice").innerText = recommendation;
 
 }
 
-
-/* ================= LOCATION SEARCH ================= */
+/* ================= SEARCH ================= */
 
 async function searchLocation(query,listId){
 
@@ -226,10 +186,8 @@ let data = await res.json();
 let list = document.getElementById(listId);
 list.innerHTML = "";
 
-/* IMPORTANT FIX */
-
 if(!Array.isArray(data)){
-console.warn("Geocode returned error:", data);
+console.warn("Geocode error:", data);
 return;
 }
 
@@ -246,26 +204,13 @@ item.innerText = name;
 item.onclick = () => {
 
 if(listId === "pickupList"){
-
 document.getElementById("pickup").value = name;
-
-startCoords = {
-lat: parseFloat(place.lat),
-lon: parseFloat(place.lon)
-};
-
+startCoords = {lat:parseFloat(place.lat),lon:parseFloat(place.lon)};
 }
 else{
-
 document.getElementById("drop").value = name;
-
-endCoords = {
-lat: parseFloat(place.lat),
-lon: parseFloat(place.lon)
-};
-
+endCoords = {lat:parseFloat(place.lat),lon:parseFloat(place.lon)};
 map.setView([place.lat, place.lon], 14);
-
 }
 
 list.innerHTML = "";
@@ -277,140 +222,25 @@ list.appendChild(item);
 });
 
 }catch(err){
-
 console.error("Search failed:", err);
-
 }
 
 }
-
-
-/* ================= DETECT LOCATION ================= */
-
-async function detectLocation(){
-
-navigator.geolocation.getCurrentPosition(async function(position){
-
-let lat = position.coords.latitude;
-let lon = position.coords.longitude;
-
-startCoords = {lat:lat,lon:lon};
-
-if(startMarker){
-map.removeLayer(startMarker);
-}
-
-startMarker = L.marker([lat,lon]).addTo(map);
-
-map.setView([lat,lon],15);
-
-/* CALL YOUR BACKEND */
-
-let url=`/reverse?lat=${lat}&lon=${lon}`;
-
-let res = await fetch(url);
-let data = await res.json();
-
-document.getElementById("pickup").value = data.display_name;
-
-});
-
-}
-
-
-/* ================= DRIVER DEMAND ================= */
-
-function showDriverDemand(){
-
-for(let i=0;i<20;i++){
-
-let lat = 17.3 + Math.random()*0.2
-let lon = 78.4 + Math.random()*0.2
-
-L.circleMarker([lat,lon],{
-radius:8,
-color:"green"
-}).addTo(map)
-
-}
-
-}
-
-
-/* ================= SURGE HEATMAP ================= */
-
-async function loadSurgeHeatmap(){
-
-let zones = [
-[17.3850,78.4867],
-[17.4435,78.3772],
-[17.4500,78.3900],
-[17.3616,78.4747],
-[17.4948,78.3996],
-[17.4065,78.4772]
-];
-
-let heatData=[];
-
-for(let z of zones){
-
-let api=`http://127.0.0.1:8000/estimate?start_lat=${z[0]}&start_lon=${z[1]}&end_lat=${z[0]+0.01}&end_lon=${z[1]+0.01}`;
-
-let res=await fetch(api);
-let data=await res.json();
-
-heatData.push([z[0],z[1],data.surge_multiplier]);
-
-}
-
-L.heatLayer(heatData,{
-radius:40,
-blur:30,
-maxZoom:13
-}).addTo(map);
-
-}
-
-loadSurgeHeatmap();
-
 
 /* ================= DRIVER ZONES ================= */
 
 async function loadDriverZones(){
 
-let res = await fetch("http://127.0.0.1:8000/driver/zones");
-
+let res = await fetch("/driver/zones");
 let zones = await res.json();
 
 let list = document.getElementById("zones");
-
 list.innerHTML="";
 
 zones.forEach(zone => {
-
 let li=document.createElement("li");
-
-li.innerText =
-zone.area +
-" | Ratio: " + zone.ratio +
-" | Surge: " + zone.surge;
-
+li.innerText = `${zone.area} | Ratio: ${zone.ratio} | Surge: ${zone.surge}`;
 list.appendChild(li);
-
 });
-
-}
-
-
-
-let searchTimeout;
-
-function debounceSearch(query,listId){
-
-clearTimeout(searchTimeout);
-
-searchTimeout = setTimeout(()=>{
-searchLocation(query,listId);
-},500);
 
 }

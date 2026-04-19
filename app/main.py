@@ -69,6 +69,7 @@ def estimate(start_lat: float, start_lon: float, end_lat: float, end_lon: float)
 # ================= GEOCODE =================
 @app.get("/geocode")
 def geocode(q: str):
+
     url = "https://nominatim.openstreetmap.org/search"
 
     params = {
@@ -76,9 +77,7 @@ def geocode(q: str):
         "format": "json",
         "limit": 5,
         "addressdetails": 1,
-        "countrycodes": "in",
-        "viewbox": "77.2,18.2,79.2,16.7",
-        "bounded": 1
+        "countrycodes": "in"
     }
 
     headers = {
@@ -91,21 +90,12 @@ def geocode(q: str):
         if r.status_code != 200:
             return []
 
-        text = r.text.strip()
-        if not text:
-            return []
-
-        try:
-            data = r.json()
-        except:
-            return []
-
+        data = r.json()
         return data if isinstance(data, list) else []
 
     except Exception as e:
         print("Geocode error:", e)
         return []
-
 
 # ================= REVERSE =================
 @app.get("/reverse")

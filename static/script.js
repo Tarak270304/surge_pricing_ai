@@ -208,68 +208,71 @@ async function calculateRide(){
 
 /* ================= SEARCH ================= */
 
-async function searchLocation(query,listId){
+let debounceTimer;
 
-    if(query.length < 2) return;
+async function searchLocation(query, listId){
 
-    let url = `/geocode?q=${encodeURIComponent(query)}`;
+    clearTimeout(debounceTimer);
 
-    try{
+    debounceTimer = setTimeout(async () => {
 
-        let res = await fetch(url);
-        let data = await res.json();
+        if(query.length < 2) return;
 
-        let list = document.getElementById(listId);
-        list.innerHTML = "";
+        let url = `/geocode?q=${encodeURIComponent(query)}`;
 
-        if(!Array.isArray(data)){
-            console.warn("Geocode error:", data);
-            return;
+        try{
+            let res = await fetch(url);
+            let data = await res.json();
+
+            let list = document.getElementById(listId);
+            list.innerHTML = "";
+
+            if(!Array.isArray(data)){
+                console.warn("Geocode error:", data);
+                return;
+            }
+
+            data.forEach(place => {
+
+                if(!place.lat || !place.lon) return;
+
+                let item = document.createElement("div");
+
+                let name = place.display_name.split(",").slice(0,3).join(",");
+
+                item.innerText = name;
+
+                item.onclick = () => {
+
+                    if(listId === "pickupList"){
+                        document.getElementById("pickup").value = name;
+                        startCoords = {
+                            lat:parseFloat(place.lat),
+                            lon:parseFloat(place.lon)
+                        };
+                    } else {
+                        document.getElementById("drop").value = name;
+                        endCoords = {
+                            lat:parseFloat(place.lat),
+                            lon:parseFloat(place.lon)
+                        };
+                        map.setView([
+                            parseFloat(place.lat),
+                            parseFloat(place.lon)
+                        ], 14);
+                    }
+
+                    list.innerHTML = "";
+                };
+
+                list.appendChild(item);
+            });
+
+        } catch(err){
+            console.error("Search failed:", err);
         }
 
-        data.forEach(place => {
-
-            if(!place.lat || !place.lon) return;
-
-            let item = document.createElement("div");
-
-            let name = place.display_name.split(",").slice(0,3).join(",");
-
-            item.innerText = name;
-
-            item.onclick = () => {
-
-                if(listId === "pickupList"){
-                    document.getElementById("pickup").value = name;
-                    startCoords = {
-                        lat:parseFloat(place.lat),
-                        lon:parseFloat(place.lon)
-                    };
-                }
-                else{
-                    document.getElementById("drop").value = name;
-                    endCoords = {
-                        lat:parseFloat(place.lat),
-                        lon:parseFloat(place.lon)
-                    };
-
-                    map.setView([
-                        parseFloat(place.lat),
-                        parseFloat(place.lon)
-                    ], 14);
-                }
-
-                list.innerHTML = "";
-            };
-
-            list.appendChild(item);
-
-        });
-
-    }catch(err){
-        console.error("Search failed:", err);
-    }
-
+    }, 400); // 400ms delay
 }
 
 

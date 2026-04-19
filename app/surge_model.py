@@ -1,7 +1,19 @@
 import joblib
 import numpy as np
+import os
 
-model = joblib.load("ml/surge_model.pkl")
+# Get current file directory (app/)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Correct path to ml/surge_model.pkl
+model_path = os.path.join(BASE_DIR, "..", "ml", "surge_model.pkl")
+model_path = os.path.abspath(model_path)
+
+print("Loading model from:", model_path)
+print("File exists:", os.path.exists(model_path))
+
+# Load model
+model = joblib.load(model_path)
 
 def predict_surge(features):
 

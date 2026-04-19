@@ -1,5 +1,7 @@
 import requests
-from config import TICKETMASTER_API_KEY
+import os
+
+TICKETMASTER_API_KEY = os.getenv("TICKETMASTER_API_KEY")
 
 def check_events(lat, lon):
 

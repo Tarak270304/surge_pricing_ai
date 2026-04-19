@@ -6,10 +6,35 @@ def search_location(query):
 
     params = {
         "q": query,
-        "format":"json",
-        "limit":5
+        "format": "json",
+        "limit": 5
     }
 
-    res = requests.get(url,params=params).json()
+    headers = {
+        "User-Agent": "surge-pricing-app"   # 🔥 VERY IMPORTANT
+    }
 
-    return res
+    try:
+        res = requests.get(url, params=params, headers=headers, timeout=5)
+
+        # Check if request failed
+        if res.status_code != 200:
+            print("Geocode API failed:", res.status_code)
+            return []
+
+        # Safe JSON parsing
+        try:
+            data = res.json()
+        except Exception as e:
+            print("JSON parse error:", e)
+            return []
+
+        # Ensure it's list
+        if not isinstance(data, list):
+            return []
+
+        return data
+
+    except Exception as e:
+        print("Geocode error:", e)
+        return []

@@ -1,5 +1,7 @@
 import requests
-from config import OPENWEATHER_API_KEY
+import os
+
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 def get_weather(lat, lon):
 

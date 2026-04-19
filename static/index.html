@@ -18,32 +18,35 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 
 <h2>🚖 AI Surge Prediction Ride Estimator</h2>
 
-<!-- ROLE SELECT -->
 <div id="roleSelect">
     <h2>Select Role</h2>
-
     <button onclick="setRole('user')" class="roleBtn">🚖 User</button>
     <button onclick="setRole('driver')" class="roleBtn">🚗 Driver</button>
 </div>
 
-
-<!-- USER PANEL -->
 <div id="userPanel" style="display:none">
 
     <div class="controls">
 
-        <input id="pickup" placeholder="Enter Pickup Location"
-        oninput="searchLocation(this.value,'pickupList')"/>
-        <div id="pickupList" class="suggestions"></div>
+        <!-- PICKUP -->
+        <div class="inputBox">
+            <input id="pickup"
+            placeholder="Enter Pickup Location"
+            oninput="searchLocation(this.value,'pickupList')"/>
 
-        <input id="drop" placeholder="Enter Drop Location"
-        oninput="searchLocation(this.value,'dropList')"/>
-        <div id="dropList" class="suggestions"></div>
+            <div id="pickupList" class="suggestions"></div>
+        </div>
+
+        <!-- DROP -->
+        <div class="inputBox">
+            <input id="drop"
+            placeholder="Enter Drop Location"
+            oninput="searchLocation(this.value,'dropList')"/>
+
+            <div id="dropList" class="suggestions"></div>
+        </div>
 
         <div id="rideInfo" class="infoPanel">
-
-            <h3 id="locationName"></h3>
-
             <p>🚦 Traffic: <span id="traffic"></span></p>
             <p>🌤 Weather: <span id="weather"></span></p>
             <p>🎉 Event: <span id="event"></span></p>
@@ -52,13 +55,8 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
             <p>⚖️ Demand/Supply Ratio: <span id="ratio"></span></p>
 
             <h2 id="fare"></h2>
-            <p id="advice"></p>
-
-            <button class="bookBtn">Book Now</button>
-
         </div>
 
-        <!-- FIXED BUTTONS -->
         <button onclick="detectLocation()">Use My Location 📍</button>
         <button onclick="calculateRide()">Estimate Ride</button>
 
@@ -66,29 +64,15 @@ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
 
 </div>
 
-
-<!-- DRIVER PANEL -->
 <div id="driverPanel" style="display:none">
-
     <h2>🚗 Driver Dashboard</h2>
-
-    <p>High Demand Zones</p>
     <ul id="zones"></ul>
-
     <button onclick="loadDriverZones()">Refresh Zones</button>
-
 </div>
 
-
-<!-- MAP -->
-<div id="map" style="height:400px; margin-top:20px;"></div>
-
-<div id="result"></div>
-
+<div id="map" style="height:400px;"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
-
 <script src="/static/script.js"></script>
 
 </body>

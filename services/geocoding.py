@@ -11,25 +11,29 @@ def search_location(query):
     }
 
     headers = {
-        "User-Agent": "surge-pricing-app"   # 🔥 VERY IMPORTANT
+        "User-Agent": "surge-pricing-app"
     }
 
     try:
         res = requests.get(url, params=params, headers=headers, timeout=5)
 
-        # Check if request failed
         if res.status_code != 200:
-            print("Geocode API failed:", res.status_code)
+            print("Geocode failed:", res.status_code)
             return []
 
-        # Safe JSON parsing
+        text = res.text.strip()
+
+        if not text:
+            print("Empty response from Nominatim")
+            return []
+
         try:
             data = res.json()
         except Exception as e:
             print("JSON parse error:", e)
+            print("Raw response:", text)
             return []
 
-        # Ensure it's list
         if not isinstance(data, list):
             return []
 

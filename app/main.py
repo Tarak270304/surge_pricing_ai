@@ -22,7 +22,6 @@ app.add_middleware(
 # ================= STATIC =================
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
 @app.get("/")
 def home():
     return FileResponse("static/index.html")
@@ -70,32 +69,36 @@ def estimate(start_lat: float, start_lon: float, end_lat: float, end_lon: float)
 # ================= GEOCODE =================
 @app.get("/geocode")
 def geocode(q: str):
-
     url = "https://nominatim.openstreetmap.org/search"
 
     params = {
         "q": q,
         "format": "json",
         "limit": 5,
-        "addressdetails": 1
+        "addressdetails": 1,
+        "countrycodes": "in",
+        "viewbox": "77.2,18.2,79.2,16.7",
+        "bounded": 1
     }
 
     headers = {
-        "User-Agent": "surge-ai-app (tarak-project)"
+        "User-Agent": "surge-ai-app"
     }
 
     try:
         r = requests.get(url, params=params, headers=headers, timeout=5)
 
-        print("STATUS:", r.status_code)
-
         if r.status_code != 200:
-            print("FAILED RESPONSE:", r.text)
             return []
 
-        data = r.json()
+        text = r.text.strip()
+        if not text:
+            return []
 
-        print("DATA:", data)
+        try:
+            data = r.json()
+        except:
+            return []
 
         return data if isinstance(data, list) else []
 
